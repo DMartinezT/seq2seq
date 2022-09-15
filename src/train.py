@@ -197,9 +197,9 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
 
     for epoch in range(1, NUM_EPOCHS+1):
         start_time = timer()
-        train_loss = train_epoch(transformer, optimizer, train_iter, loss_fn)
+        train_loss = train_epoch(transformer, optimizer, train_dataloader, loss_fn)
         end_time = timer()
-        val_loss = evaluate(transformer, val_iter, loss_fn)
+        val_loss = evaluate(transformer, val_dataloader, loss_fn)
         print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}, "f"Epoch time = {(end_time - start_time):.3f}s"))
     
 

@@ -51,8 +51,8 @@ def main(filepath: str, test = True, p = 0.7):
     N = len(factors)
     threshold = int(N*float(p))
     set_langs(factors, expansions)
-
-    if test:
+    print('test: ', int(test))
+    if int(test):
         print('Test mode.')
         factors = factors[threshold+1:]
         expansions = expansions[threshold+1:]
@@ -70,6 +70,8 @@ def main(filepath: str, test = True, p = 0.7):
 
 
 if __name__ == "__main__":
-
+    print("Starting...")
     main("test.txt" if "-t" in sys.argv else "train.txt", sys.argv[1], sys.argv[2])
-    print("")
+    print("Done.")
+    sys.exit()
+    
