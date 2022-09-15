@@ -16,6 +16,8 @@ from torch.utils.data import Dataset
 from torch.nn.utils.rnn import pad_sequence
 from timeit import default_timer as timer
 
+from torchinfo import summary
+
 import math
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -169,9 +171,9 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
 
     SRC_VOCAB_SIZE = factors_lang.n_words
     TGT_VOCAB_SIZE = expansions_lang.n_words
-    EMB_SIZE = 512
+    EMB_SIZE = 256
     NHEAD = 8
-    FFN_HID_DIM = 512
+    FFN_HID_DIM = 256
     BATCH_SIZE = 128
     NUM_ENCODER_LAYERS = 3
     NUM_DECODER_LAYERS = 3
@@ -180,9 +182,9 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
     n = len(factors)
     threshold = int(n*p)
     train_iter = FactorExpansionDataset(factors[:threshold], expansions[:threshold])
-    train_dataloader = DataLoader(train_iter, batch_size=5, collate_fn=collate_fn)
-    val_iter = FactorExpansionDataset(factors[threshold+1:], expansions[threshold + 1])
-    val_dataloader = DataLoader(val_iter, batch_size=5, collate_fn=collate_fn)
+    train_dataloader = DataLoader(train_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn)
+    val_iter = FactorExpansionDataset(factors[threshold+1:], expansions[threshold+1:])
+    val_dataloader = DataLoader(val_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn)
 
     transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                     NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
@@ -241,7 +243,7 @@ def read(factors, PATH = '../models/'):
 
 
 
-def read_aux(goal_translate, PATH = '../models/'):
+def read_aux(goal_translate, goal_target, PATH = '../models/'):
 
     l = list()
     with open(PATH + 'params.txt', 'r') as file:
@@ -257,6 +259,8 @@ def read_aux(goal_translate, PATH = '../models/'):
     NUM_ENCODER_LAYERS = int(l[6])
     NUM_DECODER_LAYERS = int(l[7])
 
+    
+
     transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                         NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
 
@@ -266,3 +270,15 @@ def read_aux(goal_translate, PATH = '../models/'):
         print('*************************************************************')
         print('Factors: ', sentence)
         print('Expansions: ', translate(transformer, sentence))
+
+    iter = FactorExpansionDataset(goal_translate, goal_target)
+    batch_size = 2
+    train_dataloader = DataLoader(iter, batch_size=batch_size, collate_fn=collate_fn) 
+    for i, d in enumerate(train_dataloader):
+        if i == 1:
+            break
+        src, tgt = d
+        tgt_input = tgt[:-1, :]
+        src_mask, tgt_mask, src_padding_mask, tgt_padding_mask = create_mask(src, tgt_input)
+        summary(transformer, input_data=[src, tgt_input, src_mask, tgt_mask, 
+        src_padding_mask, tgt_padding_mask, src_padding_mask])

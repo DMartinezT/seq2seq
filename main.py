@@ -5,6 +5,7 @@ from typing import Tuple
 from src.train import set_langs, train
 from src.train import read
 from src.train import set_langs
+from src.train import read_aux
 
 
 
@@ -49,6 +50,7 @@ def predict(factors: str):
 def main(filepath: str, test = True, p = 0.7):
     factors, expansions = load_file(filepath)
     N = len(factors)
+    print('N: ', N)
     threshold = int(N*float(p))
     set_langs(factors, expansions)
     print('test: ', int(test))
@@ -63,15 +65,27 @@ def main(filepath: str, test = True, p = 0.7):
     
     else:
         print('Train mode.')
+        print("Threshold: ", threshold)
         factors = factors[:threshold]
         expansions = expansions[:threshold]
 
         train(factors, expansions, 0.8, 10)
 
+def plot_main(filepath: str):
+    print('Plotting happily!!')
+    factors, expansions = load_file(filepath)
+    set_langs(factors, expansions)
+    N = len(factors) 
+    read_aux(factors[N-5:N-1], expansions[N-5:N-1])
+
+
 
 if __name__ == "__main__":
     print("Starting...")
-    main("test.txt" if "-t" in sys.argv else "train.txt", sys.argv[1], sys.argv[2])
+    if sys.argv[1] == str(5):
+        plot_main("train.txt")
+    else:
+        main("test.txt" if "-t" in sys.argv else "train.txt", sys.argv[1], sys.argv[2])
     print("Done.")
     sys.exit()
     
