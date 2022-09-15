@@ -2,10 +2,10 @@ import sys
 import numpy as np
 from typing import Tuple
 
-from src.train import set_langs, train
-from src.train import read
+from src.train import read_transfomer, set_langs, train
 from src.train import set_langs
 from src.train import read_aux
+from src.train import translate
 
 
 
@@ -33,15 +33,14 @@ def score(true_expansion: str, pred_expansion: str) -> int:
     :param pred_expansion: predicted string
     :return:
     """
+    print(true_expansion, "!!!!!!!!!!!!!!", pred_expansion)
     return int(true_expansion == pred_expansion)
 
 
 # --------- START OF IMPLEMENT THIS --------- #
-def predict(factors: str):
-    
-    read(factors)
+def predict(f: str, transformer):
 
-    return factors
+    return  translate(transformer, f)
 
 
 # --------- END OF IMPLEMENT THIS --------- #
@@ -52,6 +51,7 @@ def main(filepath: str, test = True, p = 0.7):
     N = len(factors)
     print('N: ', N)
     threshold = int(N*float(p))
+    print('Threshold: ', threshold)
     set_langs(factors, expansions)
     print('test: ', int(test))
     if int(test):
@@ -59,13 +59,13 @@ def main(filepath: str, test = True, p = 0.7):
         factors = factors[threshold+1:]
         expansions = expansions[threshold+1:]
 
-        pred = [predict(f) for f in factors]
+        transformer = read_transfomer()
+        pred = [predict(f, transformer) for f in factors]
         scores = [score(te, pe) for te, pe in zip(expansions, pred)]
         print(np.mean(scores))
     
     else:
         print('Train mode.')
-        print("Threshold: ", threshold)
         factors = factors[:threshold]
         expansions = expansions[:threshold]
 

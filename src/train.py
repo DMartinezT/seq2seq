@@ -218,7 +218,7 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
 
 
 
-def read(factors, PATH = '../models/'):
+def read_transfomer(PATH = '../models/'):
 
     l = list()
     with open(PATH + 'params.txt', 'r') as file:
@@ -239,7 +239,7 @@ def read(factors, PATH = '../models/'):
 
     transformer.load_state_dict(torch.load(PATH + 'transformer.pt'))
         
-    return translate(transformer, factors)
+    return transformer
 
 
 
