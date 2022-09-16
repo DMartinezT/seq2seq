@@ -37,21 +37,18 @@ def score(true_expansion: str, pred_expansion: str) -> int:
 
 
 
-def predict(f: str, transformer):
-    """ the prediction function - it receives a transformer (model used) and """
-    return  translate(transformer, f)
-
 
 
 def main(filepath: str, argv):
     factors, expansions = load_file(filepath)
     N = len(factors)
     print('N: ', N)
-    threshold = int(N*float(argv[1]))
+    threshold = 0
+    if len(argv) > 2:
+        threshold = int(N*float(argv[2]))
     print('Threshold: ', threshold)
 
     set_langs(factors, expansions)
-
     if "train" in argv:
         print('Train mode.')
         train_factors = factors[:threshold]
