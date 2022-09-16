@@ -42,19 +42,25 @@ def predict(f: str, transformer):
 
     return  translate(transformer, f)
 
-
 # --------- END OF IMPLEMENT THIS --------- #
 
 
-def main(filepath: str, test = True, p = 0.7):
+def main(filepath: str, argv, p = 0.0001):
     factors, expansions = load_file(filepath)
     N = len(factors)
     print('N: ', N)
     threshold = int(N*float(p))
     print('Threshold: ', threshold)
+
     set_langs(factors, expansions)
-    print('test: ', int(test))
-    if int(test):
+
+    if "train" in argv:
+        print('Train mode.')
+        train_factors = factors[:threshold]
+        train_expansions = expansions[:threshold]
+
+        train(train_factors, train_expansions, NUM_EPOCHS=10)
+    else:
         print('Test mode.')
         factors = factors[threshold+1:]
         expansions = expansions[threshold+1:]
@@ -62,30 +68,12 @@ def main(filepath: str, test = True, p = 0.7):
         transformer = read_transfomer()
         pred = [predict(f, transformer) for f in factors]
         scores = [score(te, pe) for te, pe in zip(expansions, pred)]
-        print(np.mean(scores))
-    
-    else:
-        print('Train mode.')
-        factors = factors[:threshold]
-        expansions = expansions[:threshold]
-
-        train(factors, expansions, 0.8, 10)
-
-def plot_main(filepath: str):
-    print('Plotting happily!!')
-    factors, expansions = load_file(filepath)
-    set_langs(factors, expansions)
-    N = len(factors) 
-    read_aux(factors[N-5:N-1], expansions[N-5:N-1])
-
+        print(np.mean(scores))    
 
 
 if __name__ == "__main__":
     print("Starting...")
-    if sys.argv[1] == str(5):
-        plot_main("train.txt")
-    else:
-        main("test.txt" if "-t" in sys.argv else "train.txt", sys.argv[1], sys.argv[2])
+    main("test.txt" if "-t" in sys.argv else "train.txt", sys.argv)
     print("Done.")
     sys.exit()
     

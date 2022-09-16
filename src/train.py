@@ -166,7 +166,7 @@ def translate(model: torch.nn.Module, src_sentence: str):
 
 
 
-def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
+def train(train_factors, train_expansions, val_factors = [], val_expansions = [], NUM_EPOCHS = 16):
     torch.manual_seed(0)
 
     SRC_VOCAB_SIZE = factors_lang.n_words
@@ -179,11 +179,10 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
     NUM_DECODER_LAYERS = 3
     PATH = '../models/'
 
-    n = len(factors)
-    threshold = int(n*p)
-    train_iter = FactorExpansionDataset(factors[:threshold], expansions[:threshold])
+
+    train_iter = FactorExpansionDataset(train_factors, train_expansions)
     train_dataloader = DataLoader(train_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn)
-    val_iter = FactorExpansionDataset(factors[threshold+1:], expansions[threshold+1:])
+    val_iter = FactorExpansionDataset(val_factors, val_expansions)
     val_dataloader = DataLoader(val_iter, batch_size=BATCH_SIZE, collate_fn=collate_fn)
 
     transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
@@ -197,14 +196,6 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
     optimizer = torch.optim.Adam(transformer.parameters(), lr=0.0001, betas=(0.9, 0.98), eps=1e-9)
 
 
-    for epoch in range(1, NUM_EPOCHS+1):
-        start_time = timer()
-        train_loss = train_epoch(transformer, optimizer, train_dataloader, loss_fn)
-        end_time = timer()
-        val_loss = evaluate(transformer, val_dataloader, loss_fn)
-        print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}, "f"Epoch time = {(end_time - start_time):.3f}s"))
-    
-
     with open(PATH + 'params.txt', 'w') as f:
         f.write(str(SRC_VOCAB_SIZE) + '\n')
         f.write(str(TGT_VOCAB_SIZE)+ '\n')
@@ -214,7 +205,19 @@ def train(factors, expansions, p = 0.7, NUM_EPOCHS = 16):
         f.write(str(BATCH_SIZE)+ '\n')
         f.write(str(NUM_ENCODER_LAYERS)+ '\n')
         f.write(str(NUM_DECODER_LAYERS)+ '\n')
-    torch.save(transformer.state_dict(), PATH + 'transformer.pt')
+
+    for epoch in range(1, NUM_EPOCHS+1):
+        start_time = timer()
+        train_loss = train_epoch(transformer, optimizer, train_dataloader, loss_fn)
+        end_time = timer()
+        # val_loss = evaluate(transformer, val_dataloader, loss_fn)
+        # print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}, "f"Epoch time = {(end_time - start_time):.3f}s"))
+        print((f"Epoch: {epoch}, Train loss: {train_loss:.3f} "f"Epoch time = {(end_time - start_time):.3f}s"))
+        torch.save(transformer.state_dict(), PATH + 'transformer.pt')
+    
+
+
+    
 
 
 
