@@ -58,7 +58,7 @@ def main(filepath: str, argv):
         train_factors = factors[:threshold]
         train_expansions = expansions[:threshold]
 
-        train(train_factors, train_expansions, NUM_EPOCHS=1)
+        train(train_factors, train_expansions, NUM_EPOCHS=16)
     else:
         print('Test mode.')
         factors = factors[threshold+1:]
@@ -68,7 +68,8 @@ def main(filepath: str, argv):
         pred = [predict(f, transformer) for f in factors]
         scores = [score(te, pe) for te, pe in zip(expansions, pred)]
         print(np.mean(scores))   
-    save_transformer_summary(factors[0:1], expansions[0:1]) 
+        
+    # save_transformer_summary(factors[0:1], expansions[0:1]) 
 
 if __name__ == "__main__":
     print("Starting...")
