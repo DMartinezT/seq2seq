@@ -1,0 +1,39 @@
+========================================================================================================================
+Layer (type:depth-idx)                                                 Output Shape              Param #
+========================================================================================================================
+Seq2SeqTransformer                                                     [15, 1, 32]               17,440
+├─Transformer: 1-8                                                     [15, 1, 256]              (recursive)
+│    └─TransformerEncoder: 2-8                                         [18, 1, 256]              (recursive)
+│    │    └─ModuleList: 3-1                                            --                        1,187,328
+│    │    └─LayerNorm: 3-5                                             [18, 1, 256]              (recursive)
+│    └─TransformerDecoder: 2-9                                         [15, 1, 256]              (recursive)
+│    │    └─ModuleList: 3-3                                            --                        1,978,368
+│    │    └─LayerNorm: 3-6                                             [15, 1, 256]              (recursive)
+├─Linear: 1-9                                                          [15, 1, 32]               (recursive)
+├─TokenEmbedding: 1-4                                                  [18, 1, 256]              (recursive)
+│    └─Embedding: 2-4                                                  [18, 1, 256]              (recursive)
+├─TokenEmbedding: 1-4                                                  [18, 1, 256]              (recursive)
+│    └─Embedding: 2-4                                                  [18, 1, 256]              (recursive)
+├─PositionalEncoding: 1-5                                              [18, 1, 256]              --
+│    └─Dropout: 2-5                                                    [18, 1, 256]              --
+├─TokenEmbedding: 1-6                                                  [15, 1, 256]              --
+│    └─Embedding: 2-6                                                  [15, 1, 256]              8,192
+├─PositionalEncoding: 1-7                                              [15, 1, 256]              --
+│    └─Dropout: 2-7                                                    [15, 1, 256]              --
+├─Transformer: 1-8                                                     [15, 1, 256]              (recursive)
+│    └─TransformerEncoder: 2-8                                         [18, 1, 256]              (recursive)
+│    │    └─LayerNorm: 3-5                                             [18, 1, 256]              (recursive)
+│    └─TransformerDecoder: 2-9                                         [15, 1, 256]              (recursive)
+│    │    └─LayerNorm: 3-6                                             [15, 1, 256]              (recursive)
+├─Linear: 1-9                                                          [15, 1, 32]               (recursive)
+========================================================================================================================
+Total params: 3,191,328
+Trainable params: 3,191,328
+Non-trainable params: 0
+Total mult-adds (M): 27.00
+========================================================================================================================
+Input size (MB): 0.00
+Forward/backward pass size (MB): 0.03
+Params size (MB): 2.40
+Estimated Total Size (MB): 2.43
+========================================================================================================================

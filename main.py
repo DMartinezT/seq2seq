@@ -33,7 +33,6 @@ def score(true_expansion: str, pred_expansion: str) -> int:
     :param pred_expansion: predicted string
     :return:
     """
-    print(true_expansion, "!!!!!!!!!!!!!!", pred_expansion)
     return int(true_expansion == pred_expansion)
 
 
@@ -59,17 +58,25 @@ def main(filepath: str, argv):
         train_expansions = expansions[:threshold]
 
         train(train_factors, train_expansions, NUM_EPOCHS=16)
+    elif "summary" in argv:
+        print('Saving summary...') 
+        save_transformer_summary(factors[0:1], expansions[0:1])
     else:
         print('Test mode.')
-        factors = factors[threshold+1:]
-        expansions = expansions[threshold+1:]
-
+        factors = factors[threshold:]
+        expansions = expansions[threshold:]
+        N = len(factors)
         transformer = read_transfomer()
-        pred = [predict(f, transformer) for f in factors]
+        pred = []
+        for i, f in enumerate(factors): 
+            if i % 200 == 0:
+                print(f"Translating factor expression %d/%d."%(i, N))
+            pred.append(translate(transformer, f))
+     
         scores = [score(te, pe) for te, pe in zip(expansions, pred)]
         print(np.mean(scores))   
-        
-    # save_transformer_summary(factors[0:1], expansions[0:1]) 
+
+     
 
 if __name__ == "__main__":
     print("Starting...")

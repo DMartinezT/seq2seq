@@ -275,7 +275,7 @@ def save_transformer_summary(src, tgt, PATH = '../models/'):
         s = summary(transformer, input_data=[src, tgt_input, src_mask, tgt_mask, 
         src_padding_mask, tgt_padding_mask, src_padding_mask])
         
-        with open(PATH + 'modelsummary.txt', 'w') as f:
+        with open('modelsummary.txt', 'w') as f:
             print(s, file = f)
             f.close()
     
