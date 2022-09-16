@@ -4,7 +4,7 @@ from typing import Tuple
 
 from src.train import read_transfomer, set_langs, train
 from src.train import set_langs
-from src.train import read_aux
+from src.train import save_transformer_summary
 from src.train import translate
 
 
@@ -37,19 +37,18 @@ def score(true_expansion: str, pred_expansion: str) -> int:
     return int(true_expansion == pred_expansion)
 
 
-# --------- START OF IMPLEMENT THIS --------- #
-def predict(f: str, transformer):
 
+def predict(f: str, transformer):
+    """ the prediction function - it receives a transformer (model used) and """
     return  translate(transformer, f)
 
-# --------- END OF IMPLEMENT THIS --------- #
 
 
-def main(filepath: str, argv, p = 0.0001):
+def main(filepath: str, argv):
     factors, expansions = load_file(filepath)
     N = len(factors)
     print('N: ', N)
-    threshold = int(N*float(p))
+    threshold = int(N*float(argv[1]))
     print('Threshold: ', threshold)
 
     set_langs(factors, expansions)
@@ -59,7 +58,7 @@ def main(filepath: str, argv, p = 0.0001):
         train_factors = factors[:threshold]
         train_expansions = expansions[:threshold]
 
-        train(train_factors, train_expansions, NUM_EPOCHS=10)
+        train(train_factors, train_expansions, NUM_EPOCHS=1)
     else:
         print('Test mode.')
         factors = factors[threshold+1:]
@@ -68,8 +67,8 @@ def main(filepath: str, argv, p = 0.0001):
         transformer = read_transfomer()
         pred = [predict(f, transformer) for f in factors]
         scores = [score(te, pe) for te, pe in zip(expansions, pred)]
-        print(np.mean(scores))    
-
+        print(np.mean(scores))   
+    save_transformer_summary(factors[0:1], expansions[0:1]) 
 
 if __name__ == "__main__":
     print("Starting...")

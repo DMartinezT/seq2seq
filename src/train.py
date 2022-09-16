@@ -163,9 +163,6 @@ def translate(model: torch.nn.Module, src_sentence: str):
 
 
 
-
-
-
 def train(train_factors, train_expansions, val_factors = [], val_expansions = [], NUM_EPOCHS = 16):
     torch.manual_seed(0)
 
@@ -214,6 +211,7 @@ def train(train_factors, train_expansions, val_factors = [], val_expansions = []
         # print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}, "f"Epoch time = {(end_time - start_time):.3f}s"))
         print((f"Epoch: {epoch}, Train loss: {train_loss:.3f} "f"Epoch time = {(end_time - start_time):.3f}s"))
         torch.save(transformer.state_dict(), PATH + 'transformer.pt')
+        
     
 
 
@@ -246,7 +244,7 @@ def read_transfomer(PATH = '../models/'):
 
 
 
-def read_aux(goal_translate, goal_target, PATH = '../models/'):
+def save_transformer_summary(src, tgt, PATH = '../models/'):
 
     l = list()
     with open(PATH + 'params.txt', 'r') as file:
@@ -266,22 +264,18 @@ def read_aux(goal_translate, goal_target, PATH = '../models/'):
 
     transformer = Seq2SeqTransformer(NUM_ENCODER_LAYERS, NUM_DECODER_LAYERS, EMB_SIZE,
                                         NHEAD, SRC_VOCAB_SIZE, TGT_VOCAB_SIZE, FFN_HID_DIM)
-
-    transformer.load_state_dict(torch.load(PATH + 'transformer.pt'))
-
-    for sentence in goal_translate:
-        print('*************************************************************')
-        print('Factors: ', sentence)
-        print('Expansions: ', translate(transformer, sentence))
-
-    iter = FactorExpansionDataset(goal_translate, goal_target)
-    batch_size = 2
-    train_dataloader = DataLoader(iter, batch_size=batch_size, collate_fn=collate_fn) 
-    for i, d in enumerate(train_dataloader):
-        if i == 1:
-            break
+                                    
+    iter = FactorExpansionDataset(src, tgt)
+    batch_size = 1
+    train_dataloader = DataLoader(iter, batch_size=batch_size, collate_fn=collate_fn)
+    for d in train_dataloader:
         src, tgt = d
         tgt_input = tgt[:-1, :]
         src_mask, tgt_mask, src_padding_mask, tgt_padding_mask = create_mask(src, tgt_input)
-        summary(transformer, input_data=[src, tgt_input, src_mask, tgt_mask, 
+        s = summary(transformer, input_data=[src, tgt_input, src_mask, tgt_mask, 
         src_padding_mask, tgt_padding_mask, src_padding_mask])
+        
+        with open(PATH + 'modelsummary.txt', 'w') as f:
+            print(s, file = f)
+            f.close()
+    
